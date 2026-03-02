@@ -5,6 +5,7 @@ description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
     "pyobjc-framework-Cocoa>=12.1; sys_platform == 'darwin'",
+    "pyobjc-framework-iobluetooth>=12.1",
 ]
 
 [dependency-groups]

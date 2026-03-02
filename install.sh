@@ -1,67 +1,55 @@
 #!/bin/bash
 
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-RED='\033[0;31m'
-NC='\033[0m'
+APP_NAME="FlipMeOver"
+INSTALL_DIR="$HOME/Library/Application Support/$APP_NAME"
+LOG_DIR="$HOME/Library/Logs/$APP_NAME"
+PLIST_LABEL="com.user.flipmeover"
+PLIST_PATH="$HOME/Library/LaunchAgents/$PLIST_LABEL.plist"
 
-echo -e "${BLUE}Starting FlipMeOver installation (Standard macOS Edition)...${NC}"
+echo "🚀 Starting installation of $APP_NAME for user: $USER"
 
-CURRENT_USER=$(whoami)
-SCRIPT_DIR=$(pwd)
-PLIST_NAME="com.$CURRENT_USER.flipmeover"
-PLIST_PATH="$HOME/Library/LaunchAgents/$PLIST_NAME.plist"
-LOG_DIR="$HOME/Library/Logs/FlipMeOver"
-
-echo -e "${GREEN}Setting up virtual environment with native Python...${NC}"
+mkdir -p "$INSTALL_DIR"
 mkdir -p "$LOG_DIR"
 
-if command -v python3 &> /dev/null
-then
-    python3 -m venv .venv
-    source .venv/bin/activate
+echo "📦 Copying files to $INSTALL_DIR..."
+cp mouse_monitor.py "$INSTALL_DIR/"
+cp flip_me_over.py "$INSTALL_DIR/"
 
-    echo -e "${GREEN}Installing required macOS framework (PyObjC)...${NC}"
-    pip install --upgrade pip
-    pip install pyobjc-framework-Cocoa
-else
-    echo -e "${RED}Error: Python 3 not found.${NC}"
-    echo "Please install Python 3 or Command Line Tools (xcode-select --install)."
-    exit 1
-fi
+echo "🛠️ Setting up Python environment..."
+cd "$INSTALL_DIR"
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install pyobjc-framework-Cocoa pyobjc-framework-IOBluetooth
 
-echo -e "${GREEN}Configuring LaunchAgent...${NC}"
-
+echo "📝 Registering LaunchAgent..."
 cat <<EOF > "$PLIST_PATH"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>$PLIST_NAME</string>
+    <string>$PLIST_LABEL</string>
     <key>ProgramArguments</key>
     <array>
-        <string>$SCRIPT_DIR/.venv/bin/python3</string>
-        <string>$SCRIPT_DIR/flip_me_over.py</string>
+        <string>$INSTALL_DIR/.venv/bin/python</string>
+        <string>$INSTALL_DIR/flip_me_over.py</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>$LOG_DIR/launchagent.log</string>
+    <string>$LOG_DIR/service.log</string>
     <key>StandardErrorPath</key>
-    <string>$LOG_DIR/launchagent.log</string>
+    <string>$LOG_DIR/service.log</string>
 </dict>
 </plist>
 EOF
 
-echo -e "${GREEN}Loading FlipMeOver into system background services...${NC}"
+echo "🔌 Starting background service..."
 launchctl unload "$PLIST_PATH" 2>/dev/null
 launchctl load "$PLIST_PATH"
 
-echo -e "${BLUE}=======================================${NC}"
-echo -e "${GREEN}SUCCESS! FlipMeOver is now running.${NC}"
-echo -e "Your Magic Mouse is now being monitored."
-echo -e "The app will start automatically at every login."
-echo -e "${BLUE}=======================================${NC}"
+echo "✅ Installation complete!"
+echo "✨ $APP_NAME will now start automatically at login."
