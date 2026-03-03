@@ -1,7 +1,7 @@
 [project]
 name = "flipmeover"
 version = "0.1.0"
-description = "Add your description here"
+description = "FlipMeOver is a lightweight macOS background utility that monitors your Magic Mouse battery level and sends native desktop notifications before your mouse becomes a paperweight!"
 requires-python = ">=3.11"
 dependencies = [
     "pyobjc-framework-Cocoa>=12.1; sys_platform == 'darwin'",

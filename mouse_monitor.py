@@ -23,7 +23,6 @@ class MouseMonitor:
     _BLUETOOTH_POWER_STATE_KEY = "ControllerPowerState"
     _DEFAULTS_READ_CMD = ("defaults", "read")
     _IOREG_CLASSES = ["AppleDeviceManagementHIDEventService", "AppleMultitouchMouse"]
-    _MAGIC_MOUSE_TOKEN = '"Product" = "Magic Mouse"'
     _BATTERY_RE = re.compile(r'"BatteryPercent"\s*=\s*(\d+)')
 
     def __init__(self):
